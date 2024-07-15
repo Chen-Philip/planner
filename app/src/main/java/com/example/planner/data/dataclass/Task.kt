@@ -1,4 +1,4 @@
-package com.example.planner.dataclass
+package com.example.planner.data.dataclass
 
 import java.util.Date
 

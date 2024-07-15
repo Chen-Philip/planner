@@ -20,7 +20,9 @@ class UserRepository {
     fun setTasks(tasks: List<FirebaseTask>) {
         tasks.forEach {
             if (it.id == null) {
-                db.collection(testUserId).add(it)
+                val temp = db.collection(testUserId).document()
+                it.id = temp.id
+                db.collection(testUserId).document(it.id!!).set(it)
             }
         }
     }

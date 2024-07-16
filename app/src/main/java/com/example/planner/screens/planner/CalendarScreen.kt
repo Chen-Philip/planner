@@ -5,10 +5,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import com.example.planner.domain.viewmodel.CalendarViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 
 @Composable
-fun CalendarScreen() {
-    var viewModel = CalendarViewModel()
+fun CalendarScreen(
+    calendarViewModel: CalendarViewModel =
+) {
+
     Column {
         Text(
             text = "Calendar Screen"

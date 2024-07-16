@@ -1,4 +1,4 @@
-package com.example.planner.screens.schedule
+package com.example.planner.screens.planner
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable

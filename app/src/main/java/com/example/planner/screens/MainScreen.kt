@@ -19,9 +19,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.planner.screens.agenda.AgendaScreen
-import com.example.planner.screens.calendar.CalendarScreen
-import com.example.planner.screens.schedule.ScheduleScreen
+import com.example.planner.screens.planner.AgendaScreen
+import com.example.planner.screens.planner.CalendarScreen
+import com.example.planner.screens.planner.ScheduleScreen
 
 sealed class Screen(
     val name: String,

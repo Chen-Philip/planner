@@ -12,7 +12,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.planner.screens.MainScreen
 import com.example.planner.ui.theme.PlannerTheme
 import com.google.firebase.firestore.FieldValue
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

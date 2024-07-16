@@ -2,11 +2,15 @@ package com.example.planner.domain.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.example.planner.data.data_model.FirebaseTask
-import com.example.planner.data.repository.UserRepository
+import com.example.planner.data.repository.user_repository.UserRepository
 import com.google.firebase.firestore.FieldValue
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class CalendarViewModel() : ViewModel() {
-    val userRepository = UserRepository()
+@HiltViewModel
+class CalendarViewModel @Inject constructor(
+    private val userRepository: UserRepository
+) : ViewModel() {
     fun addTask() {
         val task = FirebaseTask(
             name = "test",

@@ -1,11 +1,11 @@
-package com.example.planner.screens.agenda
+package com.example.planner.screens.planner
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 
 @Composable
-fun AgendaScreen() {
+fun ScheduleScreen() {
     Text(
-        text = "Agenda Screen"
+        text = "Schedule Screen"
     )
 }

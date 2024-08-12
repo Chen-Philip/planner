@@ -13,7 +13,10 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -42,12 +45,22 @@ fun MainScreen(
     mainScreenViewModel: MainScreenViewModel = hiltViewModel()
 ) {
     val navController = rememberNavController()
+    val showAddTaskDialog = remember { mutableStateOf(false) }
+
     Scaffold(
         bottomBar = { BottomNavBar(navController = navController) },
-        floatingActionButton = { AddTaskFloatingActionButton(mainScreenViewModel) }
+        floatingActionButton = { AddTaskFloatingActionButton(mainScreenViewModel, showAddTaskDialog) }
     ) {
         Box(modifier = Modifier.padding(it)) {
             NavigationGraph(navController = navController)
+        }
+        if (showAddTaskDialog.value) {
+            AddTaskDialog(
+                onDismissRequest = { showAddTaskDialog.value = false },
+                onConfirmationRequest = { name, startDate, endDate ->
+                    mainScreenViewModel.addTask(name, startDate, endDate)
+                }
+            )
         }
     }
 }
@@ -87,10 +100,13 @@ private fun BottomNavBar(navController: NavHostController) {
 
 @Composable
 private fun AddTaskFloatingActionButton(
-    mainScreenViewModel: MainScreenViewModel
+    mainScreenViewModel: MainScreenViewModel,
+    showAddTaskDialog: MutableState<Boolean>
 ) {
     FloatingActionButton(
-        onClick = { mainScreenViewModel.addTask() },
+        onClick = {
+            showAddTaskDialog.value = true
+        },
     ) {
         Icon(Icons.Filled.Add, "Add task")
     }

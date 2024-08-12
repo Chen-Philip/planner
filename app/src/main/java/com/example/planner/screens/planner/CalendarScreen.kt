@@ -16,7 +16,7 @@ fun CalendarScreen(
         Text(
             text = "Calendar Screen"
         )
-        Button(onClick = { calendarViewModel.addTask() }) {
+        Button(onClick = {  }) {
             Text(
                 text = "Add Task"
             )

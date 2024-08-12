@@ -11,14 +11,6 @@ import javax.inject.Inject
 class CalendarViewModel @Inject constructor(
     private val userRepository: UserRepository
 ) : ViewModel() {
-    fun addTask() {
-        val task = FirebaseTask(
-            name = "test",
-            date = FieldValue.serverTimestamp(),
-            startTime = FieldValue.serverTimestamp(),
-            endTime = FieldValue.serverTimestamp(),
-            dueDate = FieldValue.serverTimestamp(),
-        )
-        userRepository.setTasks(listOf(task))
-    }
+
+
 }

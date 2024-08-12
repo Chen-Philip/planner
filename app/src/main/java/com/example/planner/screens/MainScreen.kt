@@ -3,22 +3,29 @@ package com.example.planner.screens
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.AddCircle
 import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.planner.domain.viewmodel.MainScreenViewModel
 import com.example.planner.screens.planner.AgendaScreen
 import com.example.planner.screens.planner.CalendarScreen
 import com.example.planner.screens.planner.ScheduleScreen
@@ -34,13 +41,26 @@ sealed class Screen(
 }
 
 @Composable
-fun MainScreen() {
+fun MainScreen(
+    mainScreenViewModel: MainScreenViewModel = hiltViewModel()
+) {
     val navController = rememberNavController()
+    val showAddTaskDialog = remember { mutableStateOf(false) }
+
     Scaffold(
-        bottomBar = { BottomNavBar(navController = navController) }
+        bottomBar = { BottomNavBar(navController = navController) },
+        floatingActionButton = { AddTaskFloatingActionButton(mainScreenViewModel, showAddTaskDialog) }
     ) {
         Box(modifier = Modifier.padding(it)) {
             NavigationGraph(navController = navController)
+        }
+        if (showAddTaskDialog.value) {
+            AddTaskDialog(
+                onDismissRequest = { showAddTaskDialog.value = false },
+                onConfirmationRequest = { name, startDate, endDate ->
+                    mainScreenViewModel.addTask(name, startDate, endDate)
+                }
+            )
         }
     }
 }
@@ -75,6 +95,20 @@ private fun BottomNavBar(navController: NavHostController) {
                 selected = isSelected
             )
         }
+    }
+}
+
+@Composable
+private fun AddTaskFloatingActionButton(
+    mainScreenViewModel: MainScreenViewModel,
+    showAddTaskDialog: MutableState<Boolean>
+) {
+    FloatingActionButton(
+        onClick = {
+            showAddTaskDialog.value = true
+        },
+    ) {
+        Icon(Icons.Filled.Add, "Add task")
     }
 }
 

@@ -17,8 +17,8 @@ class MainScreenViewModel @Inject constructor(
             name = name,
             date = startDate?.toFloat() ?: System.currentTimeMillis().toFloat(),
             dueDate = endDate?.toFloat(),
-            startTime = FieldValue.serverTimestamp(),
-            endTime = FieldValue.serverTimestamp(),
+            startTime = null,
+            endTime = null,
         )
         userRepository.setTasks(listOf(task))
     }

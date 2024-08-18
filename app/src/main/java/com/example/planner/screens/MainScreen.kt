@@ -59,6 +59,7 @@ fun MainScreen(
                 onDismissRequest = { showAddTaskDialog.value = false },
                 onConfirmationRequest = { name, startDate, endDate ->
                     mainScreenViewModel.addTask(name, startDate, endDate)
+                    showAddTaskDialog.value = false
                 }
             )
         }

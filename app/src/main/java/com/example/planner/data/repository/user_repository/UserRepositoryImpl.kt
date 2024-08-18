@@ -20,13 +20,6 @@ class UserRepositoryImpl @Inject constructor (
         }
     }
 
-    override suspend fun getTasks2(listener: (List<FirebaseTask>?, FirebaseFirestoreException?) -> Unit): LiveData<List<FirebaseTask>> {
-        var tasks: MutableLiveData<List<FirebaseTask>> = MutableLiveData()
-        firestore.collection(User.userId).addSnapshotListener { value, e ->
-            tasks.postValue(value?.toObjects(FirebaseTask::class.java))
-        }
-        return tasks
-    }
 
     override fun setTasks(tasks: List<FirebaseTask>) {
         tasks.forEach {

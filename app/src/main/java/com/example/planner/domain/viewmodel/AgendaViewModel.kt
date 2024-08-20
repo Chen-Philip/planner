@@ -17,10 +17,20 @@ class AgendaViewModel @Inject constructor(
     private val _tasks = MutableLiveData<List<FirebaseTask>?>()
     val tasks: LiveData<List<FirebaseTask>?> = _tasks
 
+    private val _currentScreen = MutableLiveData(ScreenType.TODO)
+    val currentScreen: LiveData<ScreenType> = _currentScreen
+
+    enum class ScreenType {
+        NOTES,
+        TODO
+    }
     init {
         getTasks()
     }
 
+    fun toggleScreens(isNotesScreen: Boolean) {
+        _currentScreen.value = if (isNotesScreen) ScreenType.NOTES else ScreenType.TODO
+    }
     fun getTasks() {
         viewModelScope.launch {
             userRepository.getTasks { value, e ->

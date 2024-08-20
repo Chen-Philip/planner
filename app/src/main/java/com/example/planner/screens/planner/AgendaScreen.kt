@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -11,8 +12,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -44,7 +47,7 @@ fun AgendaScreen(
         if (currentScreen.value == AgendaViewModel.ScreenType.TODO) {
             TaskColumn(agendaViewModel)
         } else {
-            Text("notes")
+            NotesScreen()
         }
     }
 }
@@ -57,9 +60,25 @@ private fun TaskColumn(
     if (taskList.value != null) {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             itemsIndexed(taskList.value!!) { i, task ->
-                Text(
-                    text = "${task.name} ${task.date}"
-                )
+                println("testest itemsIndexed ${task.isDone}")
+                var checked by remember { mutableStateOf(task.isDone ?: false) }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Checkbox(
+                        checked = checked,
+                        onCheckedChange = {
+                            checked = it
+                            agendaViewModel.checkTask(i, checked)
+                        }
+                    )
+                    Text(
+                        text = "${task.name} ${task.date}"
+                    )
+                }
+
             }
         }
     } else {
@@ -67,7 +86,15 @@ private fun TaskColumn(
     }
 }
 
-enum class ScreenType {
-    NOTES,
-    TODO
+@Composable
+private fun NotesScreen() {
+    var text by remember { mutableStateOf("Hello") }
+    Column {
+        Text("Notes")
+        TextField(
+            value = text,
+            onValueChange = { text = it },
+            modifier = Modifier.fillMaxSize()
+        )
+    }
 }

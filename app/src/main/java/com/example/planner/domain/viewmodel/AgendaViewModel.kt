@@ -31,6 +31,11 @@ class AgendaViewModel @Inject constructor(
     fun toggleScreens(isNotesScreen: Boolean) {
         _currentScreen.value = if (isNotesScreen) ScreenType.NOTES else ScreenType.TODO
     }
+
+    fun checkTask(index: Int, isChecked: Boolean) {
+        _tasks.value?.get(index)?.isDone = isChecked
+    }
+
     fun getTasks() {
         viewModelScope.launch {
             userRepository.getTasks { value, e ->

@@ -1,10 +1,13 @@
 package com.example.planner.domain.viewmodel
 
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.planner.data.data_model.FirebaseTask
+import com.example.planner.data.dataclass.Task
 import com.example.planner.data.repository.user_repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -14,8 +17,8 @@ import javax.inject.Inject
 class AgendaViewModel @Inject constructor(
     private val userRepository: UserRepository
 ): ViewModel() {
-    private val _tasks = MutableLiveData<List<FirebaseTask>?>()
-    val tasks: LiveData<List<FirebaseTask>?> = _tasks
+
+    var tasks = mutableStateOf<List<Task>?>(listOf())
 
     private val _currentScreen = MutableLiveData(ScreenType.TODO)
     val currentScreen: LiveData<ScreenType> = _currentScreen
@@ -33,13 +36,14 @@ class AgendaViewModel @Inject constructor(
     }
 
     fun checkTask(index: Int, isChecked: Boolean) {
-        _tasks.value?.get(index)?.isDone = isChecked
+        tasks.value?.get(index)?.isDone?.value = isChecked
     }
 
     fun getTasks() {
         viewModelScope.launch {
             userRepository.getTasks { value, e ->
-                _tasks.value = value
+                println("testest changed")
+                tasks.value = value
             }
         }
     }

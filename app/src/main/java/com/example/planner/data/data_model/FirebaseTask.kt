@@ -3,7 +3,7 @@ package com.example.planner.data.data_model
 import com.google.firebase.firestore.FieldValue
 
 data class FirebaseTask (
-    var id: String? = null,
+    var id: String = "",
     var date: Float? = null,
     var name: String? = null,
     var priority: Float? = null,

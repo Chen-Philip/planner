@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.planner.domain.viewmodel.AgendaViewModel
 import com.example.planner.ui.custom_widgets.CustomSwitch
+import java.util.Date
 
 
 @Composable
@@ -56,26 +57,21 @@ fun AgendaScreen(
 private fun TaskColumn(
     agendaViewModel: AgendaViewModel
 ) {
-    val taskList = agendaViewModel.tasks.observeAsState()
-    if (taskList.value != null) {
+    if ( agendaViewModel.tasks.value != null) {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
-            itemsIndexed(taskList.value!!) { i, task ->
-                println("testest itemsIndexed ${task.isDone}")
-                var checked by remember { mutableStateOf(task.isDone ?: false) }
-
+            itemsIndexed(agendaViewModel.tasks.value!!) { i, task ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Checkbox(
-                        checked = checked,
+                        checked = task.isDone.value,
                         onCheckedChange = {
-                            checked = it
-                            agendaViewModel.checkTask(i, checked)
+                            agendaViewModel.checkTask(i, it)
                         }
                     )
                     Text(
-                        text = "${task.name} ${task.date}"
+                        text = "${task.name.value} ${task.date.value}"
                     )
                 }
 

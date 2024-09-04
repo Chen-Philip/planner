@@ -29,6 +29,7 @@ import com.example.planner.domain.viewmodel.MainScreenViewModel
 import com.example.planner.screens.planner.AgendaScreen
 import com.example.planner.screens.planner.CalendarScreen
 import com.example.planner.screens.planner.ScheduleScreen
+import java.text.SimpleDateFormat
 
 sealed class Screen(
     val name: String,
@@ -52,10 +53,11 @@ fun MainScreen(
         floatingActionButton = { AddTaskFloatingActionButton(mainScreenViewModel, showAddTaskDialog) }
     ) {
         Box(modifier = Modifier.padding(it)) {
-            NavigationGraph(navController = navController)
+            NavigationGraph(navController = navController, mainScreenViewModel = mainScreenViewModel)
         }
         if (showAddTaskDialog.value) {
             AddTaskDialog(
+                currentDate = mainScreenViewModel.date.longValue,
                 onDismissRequest = { showAddTaskDialog.value = false },
                 onConfirmationRequest = { name, startDate, endDate ->
                     mainScreenViewModel.addTask(name, startDate, endDate)
@@ -67,12 +69,15 @@ fun MainScreen(
 }
 
 @Composable
-private fun NavigationGraph(navController: NavHostController) {
+private fun NavigationGraph(
+    navController: NavHostController,
+    mainScreenViewModel: MainScreenViewModel,
+) {
     NavHost(
         navController = navController,
         startDestination = Screen.Agenda.route
     ) {
-        composable(Screen.Agenda.route) { AgendaScreen() }
+        composable(Screen.Agenda.route) { AgendaScreen(mainScreenViewModel =  mainScreenViewModel) }
         composable(Screen.Calendar.route) { CalendarScreen() }
         composable(Screen.Schedule.route) { ScheduleScreen() }
     }

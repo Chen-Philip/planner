@@ -27,7 +27,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.planner.R
+import com.example.planner.domain.viewmodel.MainScreenViewModel
 import com.example.planner.ui.Dimen.DIALOG_CORNER
 import com.example.planner.ui.Dimen.MEDIUM_PADDING
 import java.text.SimpleDateFormat
@@ -37,6 +39,7 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTaskDialog(
+    currentDate: Long,
     onDismissRequest: () -> Unit,
     onConfirmationRequest: (String, Long?, Long?) -> Unit,
 ) {
@@ -53,11 +56,9 @@ fun AddTaskDialog(
             var taskName by remember { mutableStateOf("") }
             val datePickerState = rememberDateRangePickerState(
                 initialDisplayMode = DisplayMode.Input,
-                initialSelectedStartDateMillis = System.currentTimeMillis()
+                initialSelectedStartDateMillis = currentDate // todo fix UTC to current timezone conversion
             )
             Column(
-//                modifier = Modifier
-//                    .fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -88,7 +89,7 @@ fun AddTaskDialog(
                         Text("Dismiss")
                     }
                     TextButton(
-                        onClick = { onConfirmationRequest(taskName, datePickerState.selectedStartDateMillis, datePickerState.selectedEndDateMillis) },
+                        onClick = { onConfirmationRequest(taskName, currentDate, datePickerState.selectedEndDateMillis) },
                         modifier = Modifier.padding(8.dp),
                     ) {
                         Text("Add")

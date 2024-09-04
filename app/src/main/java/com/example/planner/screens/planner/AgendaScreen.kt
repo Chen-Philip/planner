@@ -29,26 +29,46 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.planner.domain.viewmodel.AgendaViewModel
+import com.example.planner.domain.viewmodel.MainScreenViewModel
 import com.example.planner.ui.custom_widgets.CustomSwitch
+import java.text.SimpleDateFormat
 import java.util.Date
 
 
 @Composable
 fun AgendaScreen(
-    agendaViewModel: AgendaViewModel  = hiltViewModel()
+    agendaViewModel: AgendaViewModel  = hiltViewModel(),
+    mainScreenViewModel: MainScreenViewModel,
 ) {
+    agendaViewModel.getTasks(Date(mainScreenViewModel.date.longValue))
     Column {
         val currentScreen = agendaViewModel.currentScreen.observeAsState()
+        TitleRow(agendaViewModel, mainScreenViewModel)
+        if (currentScreen.value == AgendaViewModel.ScreenType.TODO) {
+            TaskColumn(agendaViewModel)
+        } else {
+            NotesScreen()
+        }
         CustomSwitch(
             option1 = "Agenda",
             option2 = "Notes"
         ) {
             agendaViewModel.toggleScreens(it)
         }
-        if (currentScreen.value == AgendaViewModel.ScreenType.TODO) {
-            TaskColumn(agendaViewModel)
-        } else {
-            NotesScreen()
+    }
+}
+@Composable
+private fun TitleRow(
+    agendaViewModel: AgendaViewModel,
+    mainScreenViewModel: MainScreenViewModel
+) {
+    Row {
+        Button(onClick = { mainScreenViewModel.getPrevDate() }) {
+            Text("<")
+        }
+        Text(agendaViewModel.dateFormat.format(mainScreenViewModel.date.longValue))
+        Button(onClick = { mainScreenViewModel.getNextDate() }) {
+            Text(">")
         }
     }
 }
@@ -58,7 +78,7 @@ private fun TaskColumn(
     agendaViewModel: AgendaViewModel
 ) {
     if ( agendaViewModel.tasks.value != null) {
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(modifier = Modifier.fillMaxSize(0.75f)) {
             itemsIndexed(agendaViewModel.tasks.value!!) { i, task ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -90,7 +110,7 @@ private fun NotesScreen() {
         TextField(
             value = text,
             onValueChange = { text = it },
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(0.75f)
         )
     }
 }

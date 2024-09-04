@@ -11,13 +11,16 @@ import com.example.planner.data.dataclass.Task
 import com.example.planner.data.repository.user_repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
 class AgendaViewModel @Inject constructor(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
 ): ViewModel() {
-
+    val dateFormat: DateFormat = SimpleDateFormat.getDateInstance()
     var tasks = mutableStateOf<List<Task>?>(listOf())
 
     private val _currentScreen = MutableLiveData(ScreenType.TODO)
@@ -26,9 +29,6 @@ class AgendaViewModel @Inject constructor(
     enum class ScreenType {
         NOTES,
         TODO
-    }
-    init {
-        getTasks()
     }
 
     fun toggleScreens(isNotesScreen: Boolean) {
@@ -39,11 +39,18 @@ class AgendaViewModel @Inject constructor(
         tasks.value?.get(index)?.isDone?.value = isChecked
     }
 
-    fun getTasks() {
+    fun getTasks(date: Date) {
         viewModelScope.launch {
             userRepository.getTasks { value, e ->
-                println("testest changed")
-                tasks.value = value
+                val temp = mutableListOf<Task>()
+                if (value != null) {
+                    for (task in value) {
+                        if (task.date.value != null && dateFormat.format(date).equals(dateFormat.format(task.date.value!!))) {
+                            temp.add(task)
+                        }
+                    }
+                }
+                tasks.value = temp
             }
         }
     }

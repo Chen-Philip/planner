@@ -31,6 +31,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.planner.domain.viewmodel.AgendaViewModel
 import com.example.planner.domain.viewmodel.MainScreenViewModel
 import com.example.planner.ui.custom_widgets.CustomSwitch
+import com.example.planner.ui.custom_widgets.TitleRow
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -43,7 +44,11 @@ fun AgendaScreen(
     agendaViewModel.getTasks(Date(mainScreenViewModel.date.longValue))
     Column {
         val currentScreen = agendaViewModel.currentScreen.observeAsState()
-        TitleRow(agendaViewModel, mainScreenViewModel)
+        TitleRow(
+            dateText = agendaViewModel.dateFormat.format(mainScreenViewModel.date.longValue),
+            onPrevClick = { mainScreenViewModel.getPrevDate() },
+            onNextClick = { mainScreenViewModel.getNextDate() },
+        )
         if (currentScreen.value == AgendaViewModel.ScreenType.TODO) {
             TaskColumn(agendaViewModel)
         } else {
@@ -54,21 +59,6 @@ fun AgendaScreen(
             option2 = "Notes"
         ) {
             agendaViewModel.toggleScreens(it)
-        }
-    }
-}
-@Composable
-private fun TitleRow(
-    agendaViewModel: AgendaViewModel,
-    mainScreenViewModel: MainScreenViewModel
-) {
-    Row {
-        Button(onClick = { mainScreenViewModel.getPrevDate() }) {
-            Text("<")
-        }
-        Text(agendaViewModel.dateFormat.format(mainScreenViewModel.date.longValue))
-        Button(onClick = { mainScreenViewModel.getNextDate() }) {
-            Text(">")
         }
     }
 }

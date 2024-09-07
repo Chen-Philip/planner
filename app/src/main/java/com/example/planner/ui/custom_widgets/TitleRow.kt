@@ -4,8 +4,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import com.example.planner.domain.viewmodel.AgendaViewModel
-import com.example.planner.domain.viewmodel.MainScreenViewModel
 
 @Composable
 fun TitleRow(
@@ -14,11 +12,11 @@ fun TitleRow(
     onNextClick: () -> Unit,
 ) {
     Row {
-        Button(onClick = { onPrevClick }) {
+        Button(onClick = { onPrevClick() }) {
             Text("<")
         }
         Text(dateText)
-        Button(onClick = { onNextClick }) {
+        Button(onClick = { onNextClick() }) {
             Text(">")
         }
     }

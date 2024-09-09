@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -13,17 +14,35 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DateRangePicker
+import androidx.compose.material3.DisplayMode
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableIntState
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.planner.data.dataclass.Task
 import com.example.planner.domain.viewmodel.AgendaViewModel
 import com.example.planner.domain.viewmodel.CalendarViewModel
 import com.example.planner.domain.viewmodel.MainScreenViewModel
@@ -41,9 +60,37 @@ fun CalendarScreen(
     calendarViewModel: CalendarViewModel = hiltViewModel(),
     mainScreenViewModel: MainScreenViewModel,
 ) {
-    Column {
+    val selectedDay = remember { mutableIntStateOf(0) }
+    val showAddTaskDialog = remember { mutableStateOf(false) }
 
-        val date = mainScreenViewModel.date.value
+    calendarViewModel.initTasks(mainScreenViewModel.date.value.lengthOfMonth())
+
+    CalendarView(
+        mainScreenViewModel = mainScreenViewModel,
+        calendarViewModel = calendarViewModel,
+        onOpenDialogRequest = {
+            selectedDay.intValue = it
+            showAddTaskDialog.value = true
+        }
+    )
+    AgendaDialog(
+        calendarViewModel = calendarViewModel,
+        showAddTaskDialog = showAddTaskDialog,
+        selectedDay = selectedDay,
+        onDismissRequest = { showAddTaskDialog.value = false },
+    )
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+private fun CalendarView(
+    mainScreenViewModel: MainScreenViewModel,
+    calendarViewModel: CalendarViewModel,
+    onOpenDialogRequest: (Int) -> Unit
+) {
+    val date = mainScreenViewModel.date.value
+
+    Column {
         TitleRow(
             dateText = calendarViewModel.dateTimeFormat.format(date),
             onPrevClick = { mainScreenViewModel.getPrevMonth() },
@@ -55,8 +102,6 @@ fun CalendarScreen(
         var numWeeks = ceil((lastDay + firstDayOfWeek) / 7.0).toInt() + 1
         var currentDay = 1 - firstDayOfWeek
 
-        calendarViewModel.initTasks(lastDay)
-
         Column(modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight(0.85f)) {
@@ -65,7 +110,9 @@ fun CalendarScreen(
                     WeekdaysRow()
                 } else {
                     Row(
-                        modifier = Modifier.fillMaxWidth().weight(1f)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
                     ) {
                         for (i in 0 .. 6) {
                             if (currentDay < 1 || currentDay > lastDay) {
@@ -76,7 +123,8 @@ fun CalendarScreen(
                                 CalendarDay(
                                     day = LocalDate.of(date.year,date.monthValue,currentDay),
                                     modifier = Modifier.weight(1f),
-                                    calendarViewModel = calendarViewModel
+                                    calendarViewModel = calendarViewModel,
+                                    onOpenDialogRequest = { onOpenDialogRequest(it) }
                                 )
                             }
                             currentDay++
@@ -86,7 +134,6 @@ fun CalendarScreen(
             }
         }
     }
-
 }
 
 @Composable
@@ -117,15 +164,16 @@ private fun WeekdaysRow() {
 private fun CalendarDay(
     day: LocalDate,
     modifier: Modifier,
-    calendarViewModel: CalendarViewModel
+    calendarViewModel: CalendarViewModel,
+    onOpenDialogRequest: (Int) -> Unit,
 ) {
     calendarViewModel.getTasks(day)
-    val numTasks =
     Column (
         modifier = modifier
             .padding(1.dp)
             .fillMaxHeight()
-            .border(width = 1.dp, color = Color.DarkGray, shape = RoundedCornerShape(8.dp)),
+            .border(width = 1.dp, color = Color.DarkGray, shape = RoundedCornerShape(8.dp))
+            .clickable { onOpenDialogRequest(day.dayOfMonth - 1) },
     ) {
         Text(text = "${day.dayOfMonth}")
         for (i in 0..1) {
@@ -134,6 +182,43 @@ private fun CalendarDay(
         val tasksLeft = calendarViewModel.tasks[day.dayOfMonth-1].value!!.size - 2
         if (tasksLeft > 0) {
             Text(text = "$tasksLeft more...", fontSize = 12.sp)
+        }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+private fun AgendaDialog(
+    calendarViewModel: CalendarViewModel,
+    selectedDay: MutableIntState,
+    showAddTaskDialog: MutableState<Boolean>,
+    onDismissRequest: () -> Unit
+//    onConfirmationRequest: (String, Long?, Long?) -> Unit,
+) {
+    if (showAddTaskDialog.value) {
+        val tasks = calendarViewModel.tasks[selectedDay.intValue].value
+        Dialog(
+            onDismissRequest = { onDismissRequest() }
+        ) {
+            // Draw a rectangle shape with rounded corners inside the dialog
+            Card(
+                modifier = Modifier
+                    .padding(Dimen.MEDIUM_PADDING)
+                    .height(200.dp),
+                shape = RoundedCornerShape(Dimen.DIALOG_CORNER),
+            ) {
+                if (tasks != null) {
+                    LazyColumn(modifier = Modifier.fillMaxSize(0.75f)) {
+                        itemsIndexed(tasks) { i, task ->
+                            Text(
+                                text = "${task.name.value} ${task.date.value}"
+                            )
+                        }
+                    }
+                } else {
+                    Text("Empty")
+                }
+            }
         }
     }
 }

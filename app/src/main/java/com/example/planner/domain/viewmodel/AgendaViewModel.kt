@@ -51,7 +51,6 @@ class AgendaViewModel @Inject constructor(
                 val temp = mutableListOf<Task>()
                 if (value != null) {
                     for (task in value) {
-                        println("testest ${dateFormat.format(task.date.value!!)}")
                         if (task.date.value != null && dateTimeFormat.format(date).equals(dateFormat.format(task.date.value!!))) {
                             temp.add(task)
                         }

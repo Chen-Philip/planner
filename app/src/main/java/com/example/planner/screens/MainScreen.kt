@@ -84,7 +84,12 @@ private fun NavigationGraph(
         startDestination = Screen.Agenda.route
     ) {
         composable(Screen.Agenda.route) { AgendaScreen(mainScreenViewModel =  mainScreenViewModel) }
-        composable(Screen.Calendar.route) { CalendarScreen(mainScreenViewModel =  mainScreenViewModel) }
+        composable(Screen.Calendar.route) {
+            CalendarScreen(
+                mainScreenViewModel =  mainScreenViewModel,
+                navController = navController
+            )
+        }
         composable(Screen.Schedule.route) { ScheduleScreen() }
     }
 }

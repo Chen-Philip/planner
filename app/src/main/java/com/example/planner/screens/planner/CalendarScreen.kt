@@ -42,10 +42,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.example.planner.data.dataclass.Task
 import com.example.planner.domain.viewmodel.AgendaViewModel
 import com.example.planner.domain.viewmodel.CalendarViewModel
 import com.example.planner.domain.viewmodel.MainScreenViewModel
+import com.example.planner.screens.Screen
 import com.example.planner.ui.Dimen
 import com.example.planner.ui.custom_widgets.CustomSwitch
 import com.example.planner.ui.custom_widgets.TitleRow
@@ -59,6 +61,7 @@ import kotlin.math.ceil
 fun CalendarScreen(
     calendarViewModel: CalendarViewModel = hiltViewModel(),
     mainScreenViewModel: MainScreenViewModel,
+    navController: NavController,
 ) {
     val selectedDay = remember { mutableIntStateOf(0) }
     val showAddTaskDialog = remember { mutableStateOf(false) }
@@ -78,6 +81,11 @@ fun CalendarScreen(
         showAddTaskDialog = showAddTaskDialog,
         selectedDay = selectedDay,
         onDismissRequest = { showAddTaskDialog.value = false },
+        onNavigateToAgendaRequest = {
+            val date = mainScreenViewModel.date.value
+            mainScreenViewModel.date.value = LocalDate.of(date.year, date.monthValue, it)
+            navController.navigate(Screen.Agenda.route)
+        }
     )
 }
 
@@ -192,8 +200,8 @@ private fun AgendaDialog(
     calendarViewModel: CalendarViewModel,
     selectedDay: MutableIntState,
     showAddTaskDialog: MutableState<Boolean>,
+    onNavigateToAgendaRequest: (Int) -> Unit,
     onDismissRequest: () -> Unit
-//    onConfirmationRequest: (String, Long?, Long?) -> Unit,
 ) {
     if (showAddTaskDialog.value) {
         val tasks = calendarViewModel.tasks[selectedDay.intValue].value
@@ -207,16 +215,27 @@ private fun AgendaDialog(
                     .height(200.dp),
                 shape = RoundedCornerShape(Dimen.DIALOG_CORNER),
             ) {
-                if (tasks != null) {
-                    LazyColumn(modifier = Modifier.fillMaxSize(0.75f)) {
-                        itemsIndexed(tasks) { i, task ->
-                            Text(
-                                text = "${task.name.value} ${task.date.value}"
-                            )
+                Column {
+                    if (tasks != null) {
+                        LazyColumn(modifier = Modifier.fillMaxSize(0.75f)) {
+                            itemsIndexed(tasks) { i, task ->
+                                Text(
+                                    text = "${task.name.value} ${task.date.value}"
+                                )
+                            }
                         }
+                    } else {
+                        Text("Empty")
                     }
-                } else {
-                    Text("Empty")
+                    TextButton(
+                        modifier = Modifier.padding(8.dp),
+                        onClick = {
+                            onDismissRequest()
+                            onNavigateToAgendaRequest(selectedDay.intValue + 1)
+                        }
+                    ) {
+                        Text("See in agenda")
+                    }
                 }
             }
         }

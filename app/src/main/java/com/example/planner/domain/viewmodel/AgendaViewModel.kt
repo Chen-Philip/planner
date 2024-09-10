@@ -1,5 +1,7 @@
 package com.example.planner.domain.viewmodel
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
@@ -13,14 +15,18 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.text.DateFormat
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
+@RequiresApi(Build.VERSION_CODES.O)
 class AgendaViewModel @Inject constructor(
     private val userRepository: UserRepository,
 ): ViewModel() {
     val dateFormat: DateFormat = SimpleDateFormat.getDateInstance()
+    val dateTimeFormat = DateTimeFormatter.ofPattern("MMM d, yyyy")
     var tasks = mutableStateOf<List<Task>?>(listOf())
 
     private val _currentScreen = MutableLiveData(ScreenType.TODO)
@@ -39,13 +45,13 @@ class AgendaViewModel @Inject constructor(
         tasks.value?.get(index)?.isDone?.value = isChecked
     }
 
-    fun getTasks(date: Date) {
+    fun getTasks(date: LocalDate) {
         viewModelScope.launch {
             userRepository.getTasks { value, e ->
                 val temp = mutableListOf<Task>()
                 if (value != null) {
                     for (task in value) {
-                        if (task.date.value != null && dateFormat.format(date).equals(dateFormat.format(task.date.value!!))) {
+                        if (task.date.value != null && dateTimeFormat.format(date).equals(dateFormat.format(task.date.value!!))) {
                             temp.add(task)
                         }
                     }

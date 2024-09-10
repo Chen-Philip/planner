@@ -1,5 +1,7 @@
 package com.example.planner.screens
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -30,6 +32,8 @@ import com.example.planner.screens.planner.AgendaScreen
 import com.example.planner.screens.planner.CalendarScreen
 import com.example.planner.screens.planner.ScheduleScreen
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.util.Calendar
 
 sealed class Screen(
     val name: String,
@@ -41,6 +45,7 @@ sealed class Screen(
     data object Schedule : Screen(name = "Schedule", route = "schedule", icon = Icons.Rounded.Person)
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainScreen(
     mainScreenViewModel: MainScreenViewModel = hiltViewModel()
@@ -57,7 +62,7 @@ fun MainScreen(
         }
         if (showAddTaskDialog.value) {
             AddTaskDialog(
-                currentDate = mainScreenViewModel.date.longValue,
+                currentDate = localDateToMillis(mainScreenViewModel.date.value),
                 onDismissRequest = { showAddTaskDialog.value = false },
                 onConfirmationRequest = { name, startDate, endDate ->
                     mainScreenViewModel.addTask(name, startDate, endDate)
@@ -68,6 +73,7 @@ fun MainScreen(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun NavigationGraph(
     navController: NavHostController,
@@ -78,7 +84,12 @@ private fun NavigationGraph(
         startDestination = Screen.Agenda.route
     ) {
         composable(Screen.Agenda.route) { AgendaScreen(mainScreenViewModel =  mainScreenViewModel) }
-        composable(Screen.Calendar.route) { CalendarScreen() }
+        composable(Screen.Calendar.route) {
+            CalendarScreen(
+                mainScreenViewModel =  mainScreenViewModel,
+                navController = navController
+            )
+        }
         composable(Screen.Schedule.route) { ScheduleScreen() }
     }
 }
@@ -123,4 +134,11 @@ private fun AddTaskFloatingActionButton(
 private fun getCurrentRoute(navController: NavHostController): String? {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     return navBackStackEntry?.destination?.route
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+private fun localDateToMillis(date: LocalDate): Long {
+    var tempCalendar = Calendar.getInstance()
+    tempCalendar.set(date.year, date.monthValue, date.dayOfMonth)
+    return tempCalendar.timeInMillis
 }

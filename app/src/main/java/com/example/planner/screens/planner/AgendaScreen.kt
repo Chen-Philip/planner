@@ -1,5 +1,7 @@
 package com.example.planner.screens.planner
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,19 +33,25 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.planner.domain.viewmodel.AgendaViewModel
 import com.example.planner.domain.viewmodel.MainScreenViewModel
 import com.example.planner.ui.custom_widgets.CustomSwitch
+import com.example.planner.ui.custom_widgets.TitleRow
 import java.text.SimpleDateFormat
 import java.util.Date
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AgendaScreen(
     agendaViewModel: AgendaViewModel  = hiltViewModel(),
     mainScreenViewModel: MainScreenViewModel,
 ) {
-    agendaViewModel.getTasks(Date(mainScreenViewModel.date.longValue))
+    agendaViewModel.getTasks(mainScreenViewModel.date.value)
     Column {
         val currentScreen = agendaViewModel.currentScreen.observeAsState()
-        TitleRow(agendaViewModel, mainScreenViewModel)
+        TitleRow(
+            dateText = agendaViewModel.dateTimeFormat.format(mainScreenViewModel.date.value),
+            onPrevClick = { mainScreenViewModel.getPrevDate() },
+            onNextClick = { mainScreenViewModel.getNextDate() },
+        )
         if (currentScreen.value == AgendaViewModel.ScreenType.TODO) {
             TaskColumn(agendaViewModel)
         } else {
@@ -57,22 +65,8 @@ fun AgendaScreen(
         }
     }
 }
-@Composable
-private fun TitleRow(
-    agendaViewModel: AgendaViewModel,
-    mainScreenViewModel: MainScreenViewModel
-) {
-    Row {
-        Button(onClick = { mainScreenViewModel.getPrevDate() }) {
-            Text("<")
-        }
-        Text(agendaViewModel.dateFormat.format(mainScreenViewModel.date.longValue))
-        Button(onClick = { mainScreenViewModel.getNextDate() }) {
-            Text(">")
-        }
-    }
-}
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun TaskColumn(
     agendaViewModel: AgendaViewModel

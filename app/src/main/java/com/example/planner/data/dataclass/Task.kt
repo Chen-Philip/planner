@@ -9,6 +9,6 @@ import java.util.Date
      var date: MutableState<Date?> = mutableStateOf(null),
      var name: MutableState<String> = mutableStateOf(""),
      var priority: Float? = null,
-     var isImportant: Boolean = false,
+     var pinToCalendar: MutableState<Boolean> = mutableStateOf(false),
      var isDone: MutableState<Boolean> = mutableStateOf(false),
  )

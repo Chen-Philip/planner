@@ -63,8 +63,8 @@ fun MainScreen(
             AddTaskDialog(
                 currentDate = localDateToMillis(mainScreenViewModel.date.value),
                 onDismissRequest = { showAddTaskDialog.value = false },
-                onConfirmationRequest = { name, startDate, endDate ->
-                    mainScreenViewModel.addTask(name, startDate, endDate)
+                onConfirmationRequest = { task ->
+                    mainScreenViewModel.addTask(task)
                     showAddTaskDialog.value = false
                 }
             )
@@ -137,7 +137,8 @@ private fun getCurrentRoute(navController: NavHostController): String? {
 
 @RequiresApi(Build.VERSION_CODES.O)
 private fun localDateToMillis(date: LocalDate): Long {
-    var tempCalendar = Calendar.getInstance()
-    tempCalendar.set(date.year, date.monthValue, date.dayOfMonth)
+    val tempCalendar = Calendar.getInstance()
+    // todo fix this: gives one month ahead for some reason
+    tempCalendar.set(date.year, date.monthValue - 1, date.dayOfMonth)
     return tempCalendar.timeInMillis
 }

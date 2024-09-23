@@ -40,7 +40,8 @@ class UserRepositoryImpl @Inject constructor (
             date = mutableStateOf( firebaseTask.date?.toLong().let { if (it == null) null else Date(it)}),
             name = mutableStateOf(firebaseTask.name ?: ""),
             priority = null,
-            isDone = mutableStateOf(firebaseTask.isDone ?: false)
+            isDone = mutableStateOf(firebaseTask.isDone ?: false),
+            pinToCalendar = mutableStateOf(firebaseTask.pinToCalendar)
         )
     }
 }

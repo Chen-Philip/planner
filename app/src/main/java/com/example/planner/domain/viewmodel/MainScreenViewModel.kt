@@ -20,15 +20,7 @@ class MainScreenViewModel @Inject constructor(
     )
 
 
-    fun addTask(name: String, startDate: Long?, endDate: Long?) {
-        val task = FirebaseTask(
-            id = "",
-            name = name,
-            date = startDate?.toFloat() ?: System.currentTimeMillis().toFloat(),
-            dueDate = endDate?.toFloat(),
-            startTime = null,
-            endTime = null,
-        )
+    fun addTask(task: FirebaseTask) {
         userRepository.setTasks(listOf(task))
     }
 

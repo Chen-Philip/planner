@@ -31,7 +31,6 @@ import com.example.planner.domain.viewmodel.MainScreenViewModel
 import com.example.planner.screens.planner.AgendaScreen
 import com.example.planner.screens.planner.CalendarScreen
 import com.example.planner.screens.planner.ScheduleScreen
-import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.Calendar
 

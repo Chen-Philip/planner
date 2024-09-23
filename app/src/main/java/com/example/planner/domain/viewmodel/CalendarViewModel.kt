@@ -27,9 +27,6 @@ import javax.inject.Inject
 class CalendarViewModel @Inject constructor(
     private val userRepository: UserRepository
 ) : ViewModel() {
-    val dateFormat: DateFormat = SimpleDateFormat("MMM, yyyy")
-    val dateTimeFormat = DateTimeFormatter.ofPattern("MMM, yyyy")
-
     lateinit var tasks: List<MutableState<List<Task>?>>
 
     fun initTasks(numDays: Int) {
@@ -38,48 +35,23 @@ class CalendarViewModel @Inject constructor(
                 add(mutableStateOf(emptyList()))
             }
         }
-        println("testest ${tasks.size}")
     }
-//    fun getTasks(date: LocalDate) {
-//        viewModelScope.launch {
-//            userRepository.getTasks { value, e ->
-//                val temp = mutableListOf<Task>()
-//                if (value != null) {
-//                    for (task in value) {
-//                        if (task.date.value != null && dateTimeFormat.format(date).equals(dateFormat.format(task.date.value!!))) {
-//                            temp.add(task)
-//                        }
-//                    }
-//                }
-//                tasks.value = temp
-//            }
-//        }
-//        Task  (
-//            var id: String = "",
-//        var date: MutableState<Date?> = mutableStateOf(null),
-//        var name: MutableState<String> = mutableStateOf(""),
-//        var priority: Float? = null,
-//        var isImportant: Boolean = false,
-//        var isDone: MutableState<Boolean> = mutableStateOf(false),
-//        )
-//    }
 
     fun getTasks(date: LocalDate) {
-        var tempTask = Task (
-            id = "",
-            name= mutableStateOf("test test"),
-            priority= null,
-            isImportant= true,
-        )
-        println("testest ${date.dayOfMonth}")
-        tasks[date.dayOfMonth - 1].value = listOf(
-            tempTask,
-            tempTask,
-            tempTask,
-            tempTask,
-            tempTask,
-        )
+        val dateFormat: DateFormat = SimpleDateFormat.getDateInstance()
+        val dateTimeFormat = DateTimeFormatter.ofPattern("MMM d, yyyy")
+        viewModelScope.launch {
+            userRepository.getTasks { value, e ->
+                val temp = mutableListOf<Task>()
+                if (value != null) {
+                    for (task in value) {
+                        if (task.date.value != null && dateTimeFormat.format(date).equals(dateFormat.format(task.date.value!!))) {
+                            temp.add(task)
+                        }
+                    }
+                }
+                tasks[date.dayOfMonth - 1].value = temp
+            }
+        }
     }
-
-
 }

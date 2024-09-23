@@ -52,6 +52,7 @@ import com.example.planner.ui.Dimen
 import com.example.planner.ui.custom_widgets.CustomSwitch
 import com.example.planner.ui.custom_widgets.TitleRow
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import kotlin.math.ceil
@@ -96,18 +97,19 @@ private fun CalendarView(
     calendarViewModel: CalendarViewModel,
     onOpenDialogRequest: (Int) -> Unit
 ) {
+    val monthTimeFormat = DateTimeFormatter.ofPattern("MMM, yyyy")
     val date = mainScreenViewModel.date.value
 
     Column {
         TitleRow(
-            dateText = calendarViewModel.dateTimeFormat.format(date),
+            dateText = monthTimeFormat.format(date),
             onPrevClick = { mainScreenViewModel.getPrevMonth() },
             onNextClick = { mainScreenViewModel.getNextMonth() },
         )
 
-        var firstDayOfWeek = date.withDayOfMonth(1).dayOfWeek.value % 7
+        val firstDayOfWeek = date.withDayOfMonth(1).dayOfWeek.value % 7
         val lastDay = date.lengthOfMonth()
-        var numWeeks = ceil((lastDay + firstDayOfWeek) / 7.0).toInt() + 1
+        val numWeeks = ceil((lastDay + firstDayOfWeek) / 7.0).toInt() + 1
         var currentDay = 1 - firstDayOfWeek
 
         Column(modifier = Modifier
@@ -184,12 +186,17 @@ private fun CalendarDay(
             .clickable { onOpenDialogRequest(day.dayOfMonth - 1) },
     ) {
         Text(text = "${day.dayOfMonth}")
-        for (i in 0..1) {
-            Text(text = calendarViewModel.tasks[day.dayOfMonth-1].value!![i].name.value,maxLines = 1, overflow = TextOverflow.Ellipsis, fontSize = 12.sp)
-        }
-        val tasksLeft = calendarViewModel.tasks[day.dayOfMonth-1].value!!.size - 2
-        if (tasksLeft > 0) {
-            Text(text = "$tasksLeft more...", fontSize = 12.sp)
+        val tasks = calendarViewModel.tasks[day.dayOfMonth-1].value
+        if (tasks.isNullOrEmpty()) {
+            Text("No Tasks")
+        } else {
+            for (i in 0..1) {
+                Text(text = tasks[i].name.value, maxLines = 1, overflow = TextOverflow.Ellipsis, fontSize = 12.sp)
+            }
+            val tasksLeft = tasks.size - 2
+            if (tasksLeft > 0) {
+                Text(text = "$tasksLeft more...", fontSize = 12.sp)
+            }
         }
     }
 }

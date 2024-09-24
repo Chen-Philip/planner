@@ -36,6 +36,7 @@ import com.example.planner.domain.viewmodel.MainScreenViewModel
 import com.example.planner.screens.Screen
 import com.example.planner.ui.Dimen
 import com.example.planner.ui.custom_widgets.TitleRow
+import java.lang.Integer.min
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import kotlin.math.ceil
@@ -173,9 +174,10 @@ private fun CalendarDay(
         if (tasks.isNullOrEmpty()) {
             Text("No Tasks")
         } else {
-            for (i in 0..1) {
+            for (i in 0..< min(2, tasks.size)) {
                 Text(text = tasks[i].name.value, maxLines = 1, overflow = TextOverflow.Ellipsis, fontSize = 12.sp)
             }
+
             val tasksLeft = tasks.size - 2
             if (tasksLeft > 0) {
                 Text(text = "$tasksLeft more...", fontSize = 12.sp)

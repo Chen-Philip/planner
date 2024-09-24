@@ -43,7 +43,9 @@ class CalendarViewModel @Inject constructor(
                 if (value != null) {
                     for (task in value) {
                         if (task.date.value != null && dateTimeFormat.format(date).equals(dateFormat.format(task.date.value!!))) {
-                            temp.add(task)
+                            if (task.pinToCalendar.value) {
+                                temp.add(task)
+                            }
                         }
                     }
                 }

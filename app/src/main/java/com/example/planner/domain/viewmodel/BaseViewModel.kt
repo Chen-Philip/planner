@@ -16,7 +16,11 @@ abstract class BaseViewModel: ViewModel() {
 
     abstract fun getTasks(date: LocalDate)
 
-    fun unPinFromCalendar(task: Task) {
+    fun deleteTask(task: Task) {
+        userRepository.deleteTask(task)
+    }
+
+    fun pinToCalendar(task: Task) {
         task.pinToCalendar.value = !task.pinToCalendar.value
         userRepository.updateTask(task)
     }

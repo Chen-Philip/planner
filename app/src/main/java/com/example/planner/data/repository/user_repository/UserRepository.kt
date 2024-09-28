@@ -12,6 +12,8 @@ import kotlinx.coroutines.tasks.await
 interface UserRepository {
     suspend fun getTasks(listener: (List<Task>?, FirebaseFirestoreException?) -> Unit)
 
+    fun deleteTask(task: Task)
+
     fun updateTask(task: Task)
 
     fun setTasks(tasks: List<FirebaseTask>)

@@ -23,6 +23,16 @@ class UserRepositoryImpl @Inject constructor (
         }
     }
 
+    override fun deleteTask(task: Task) {
+        val firebaseTask = transformTasktoFirebaseTask(task)
+        if (firebaseTask.id == "") {
+            val temp = firestore.collection(User.userId).document()
+            firebaseTask.id = temp.id
+
+        }
+        firestore.collection(User.userId).document(firebaseTask.id).delete()
+    }
+
     override fun updateTask(task: Task) {
         val firebaseTask = transformTasktoFirebaseTask(task)
         if (firebaseTask.id == "") {

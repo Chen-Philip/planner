@@ -10,18 +10,30 @@ import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DateRangePicker
+import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,9 +42,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import com.example.planner.data.data_model.FirebaseTask
 import com.example.planner.data.dataclass.Task
 import com.example.planner.domain.viewmodel.BaseViewModel
 import com.example.planner.domain.viewmodel.CalendarViewModel
+import com.example.planner.ui.Dimen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -40,6 +55,13 @@ fun TaskRow(
     viewModel: BaseViewModel,
     task: Task,
 ) {
+
+    // Can use decorator or smth
+    val showConfirmDialog = remember { mutableStateOf(false) }
+    ConfirmDialog(showConfirmDialog, onDismissRequest = { showConfirmDialog.value = false }) {
+        it()
+        showConfirmDialog.value = false
+    }
 
     Row (
         modifier = Modifier.fillMaxWidth(),
@@ -82,16 +104,23 @@ fun TaskRow(
                         Icon(Icons.Filled.Edit, "More")
                     }
                     IconButton(
-                        onClick = { /* TODO */ }
+                        onClick = {
+                            showConfirmDialog.value = true
+//                            viewModel.deleteTask(task)
+                        }
                     ) {
                         Icon(Icons.Filled.Delete, "More")
                     }
                     IconButton(
                         onClick = {
-                            viewModel.unPinFromCalendar(task)
+                            viewModel.pinToCalendar(task)
                         }
                     ) {
-                        Icon(Icons.Filled.Star, "More")
+                        if (task.pinToCalendar.value) {
+                            Icon(Icons.Filled.Favorite, "More")
+                        } else {
+                            Icon(Icons.Outlined.FavoriteBorder, "More")
+                        }
                     }
                 }
             }
@@ -102,6 +131,56 @@ fun TaskRow(
                 Icon(Icons.Filled.MoreVert, "More")
             }
         }
+    }
+}
 
+@Composable
+private fun ConfirmDialog(
+    showConfirmDialog: MutableState<Boolean>,
+    onDismissRequest: () -> Unit,
+    onConfirmationRequest: (() -> Unit) -> Unit,
+) {
+    if (showConfirmDialog.value) {
+        Dialog(
+            onDismissRequest = { onDismissRequest() }
+        ) {
+            // Draw a rectangle shape with rounded corners inside the dialog
+            Card(
+                modifier = Modifier
+                    .padding(Dimen.MEDIUM_PADDING),
+                shape = RoundedCornerShape(Dimen.DIALOG_CORNER),
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    val pinToCalendar = remember { mutableStateOf(false) }
+                    Text(" Are you sure you want to delete this task?")
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        TextButton(
+                            onClick = { onDismissRequest() },
+                            modifier = Modifier.padding(8.dp),
+                        ) {
+                            Text("Dismiss")
+                        }
+                        TextButton(
+                            onClick = {
+                                onConfirmationRequest {
+
+                                }
+                            },
+                            modifier = Modifier.padding(8.dp),
+                        ) {
+                            Text("Confirm")
+                        }
+                    }
+                }
+            }
+        }
     }
 }

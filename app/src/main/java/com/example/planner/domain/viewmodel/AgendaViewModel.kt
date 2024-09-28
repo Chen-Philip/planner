@@ -19,15 +19,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 @RequiresApi(Build.VERSION_CODES.O)
-class AgendaViewModel @Inject constructor(
-    private val userRepository: UserRepository,
-): ViewModel() {
+class AgendaViewModel @Inject constructor(): BaseViewModel() {
     val dateFormat: DateFormat = SimpleDateFormat.getDateInstance()
     val dateTimeFormat = DateTimeFormatter.ofPattern("MMM d, yyyy")
-    var tasks = mutableStateOf<List<Task>?>(listOf())
 
     private val _currentScreen = MutableLiveData(ScreenType.TODO)
     val currentScreen: LiveData<ScreenType> = _currentScreen
+    var tasks = mutableStateOf<List<Task>?>(listOf())
 
     enum class ScreenType {
         NOTES,
@@ -38,11 +36,7 @@ class AgendaViewModel @Inject constructor(
         _currentScreen.value = if (isNotesScreen) ScreenType.NOTES else ScreenType.TODO
     }
 
-    fun checkTask(index: Int, isChecked: Boolean) {
-        tasks.value?.get(index)?.isDone?.value = isChecked
-    }
-
-    fun getTasks(date: LocalDate) {
+    override fun getTasks(date: LocalDate) {
         viewModelScope.launch {
             userRepository.getTasks { value, e ->
                 val temp = mutableListOf<Task>()

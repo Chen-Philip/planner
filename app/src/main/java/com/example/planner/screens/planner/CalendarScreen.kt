@@ -305,7 +305,6 @@ fun TaskRow(
                     }
                     IconButton(
                         onClick = {
-                            task.pinToCalendar.value = !task.pinToCalendar.value
                             calendarViewModel.unPinFromCalendar(task)
                         }
                     ) {

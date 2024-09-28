@@ -69,7 +69,7 @@ private fun TaskColumn(
                     Checkbox(
                         checked = task.isDone.value,
                         onCheckedChange = {
-                            agendaViewModel.checkTask(i, it)
+                            agendaViewModel.checkTask(task, it)
                         }
                     )
                     Text(

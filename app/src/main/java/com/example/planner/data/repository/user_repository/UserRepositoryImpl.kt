@@ -23,13 +23,22 @@ class UserRepositoryImpl @Inject constructor (
         }
     }
 
+    override fun updateTask(task: Task) {
+        val firebaseTask = transformTasktoFirebaseTask(task)
+        if (firebaseTask.id == "") {
+            val temp = firestore.collection(User.userId).document()
+            firebaseTask.id = temp.id
+
+        }
+        firestore.collection(User.userId).document(firebaseTask.id).set(firebaseTask)
+    }
 
     override fun setTasks(tasks: List<FirebaseTask>) {
         tasks.forEach {
             if (it.id == "") {
                 val temp = firestore.collection(User.userId).document()
                 it.id = temp.id
-                firestore.collection(User.userId).document(it.id!!).set(it)
+                firestore.collection(User.userId).document(it.id).set(it)
             }
         }
     }
@@ -42,6 +51,17 @@ class UserRepositoryImpl @Inject constructor (
             priority = null,
             isDone = mutableStateOf(firebaseTask.isDone ?: false),
             pinToCalendar = mutableStateOf(firebaseTask.pinToCalendar)
+        )
+    }
+
+    private fun transformTasktoFirebaseTask(task: Task): FirebaseTask {
+        return FirebaseTask(
+            id = task.id,
+            date = task.date.value?.time?.toFloat(),
+            name =  task.name.value,
+            priority = null,
+            isDone = task.isDone.value,
+            pinToCalendar = task.pinToCalendar.value
         )
     }
 }

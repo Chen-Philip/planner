@@ -34,6 +34,11 @@ class CalendarViewModel @Inject constructor(
         }
     }
 
+    fun unPinFromCalendar(task: Task) {
+        userRepository.updateTask(task)
+
+    }
+
     fun getTasks(date: LocalDate) {
         val dateFormat: DateFormat = SimpleDateFormat.getDateInstance()
         val dateTimeFormat = DateTimeFormatter.ofPattern("MMM d, yyyy")

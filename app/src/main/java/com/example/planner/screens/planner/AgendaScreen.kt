@@ -23,6 +23,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.planner.domain.viewmodel.AgendaViewModel
 import com.example.planner.domain.viewmodel.MainScreenViewModel
 import com.example.planner.ui.custom_widgets.CustomSwitch
+import com.example.planner.ui.custom_widgets.TaskRow
 import com.example.planner.ui.custom_widgets.TitleRow
 
 
@@ -62,21 +63,7 @@ private fun TaskColumn(
     if ( agendaViewModel.tasks.value != null) {
         LazyColumn(modifier = Modifier.fillMaxSize(0.75f)) {
             itemsIndexed(agendaViewModel.tasks.value!!) { i, task ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Checkbox(
-                        checked = task.isDone.value,
-                        onCheckedChange = {
-                            agendaViewModel.checkTask(task, it)
-                        }
-                    )
-                    Text(
-                        text = "${task.name.value} ${task.date.value}"
-                    )
-                }
-
+                TaskRow(agendaViewModel, task)
             }
         }
     } else {

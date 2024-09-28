@@ -61,6 +61,7 @@ import com.example.planner.domain.viewmodel.CalendarViewModel
 import com.example.planner.domain.viewmodel.MainScreenViewModel
 import com.example.planner.screens.Screen
 import com.example.planner.ui.Dimen
+import com.example.planner.ui.custom_widgets.TaskRow
 import com.example.planner.ui.custom_widgets.TitleRow
 import java.lang.Integer.min
 import java.time.LocalDate
@@ -259,66 +260,3 @@ private fun AgendaDialog(
     }
 }
 // todo task with decorator
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-fun TaskRow(
-    calendarViewModel: CalendarViewModel,
-    task: Task,
-) {
-
-    Row (
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            text = task.name.value
-        )
-        Row (
-            horizontalArrangement = Arrangement.Absolute.Right
-        ){
-            var visible by remember { mutableStateOf(false) }
-            val density = LocalDensity.current
-            AnimatedVisibility(
-                visible = visible,
-                enter = slideInHorizontally {
-                    // Slide in from 40 dp from the top.
-                    with(density) { -40.dp.roundToPx() }
-                } + expandHorizontally(
-                    // Expand from the top.
-                    expandFrom = Alignment.Start
-                ) + fadeIn(
-                    // Fade in with the initial alpha of 0.3f.
-                    initialAlpha = 0.3f
-                ),
-                exit = slideOutHorizontally() + shrinkHorizontally() + fadeOut()
-            ) {
-                Row {
-                    IconButton(
-                        onClick = { /* TODO */ }
-                    ) {
-                        Icon(Icons.Filled.Edit, "More")
-                    }
-                    IconButton(
-                        onClick = { /* TODO */ }
-                    ) {
-                        Icon(Icons.Filled.Delete, "More")
-                    }
-                    IconButton(
-                        onClick = {
-                            calendarViewModel.unPinFromCalendar(task)
-                        }
-                    ) {
-                        Icon(Icons.Filled.Star, "More")
-                    }
-                }
-            }
-
-            IconButton(
-                onClick = { visible = !visible }
-            ) {
-                Icon(Icons.Filled.MoreVert, "More")
-            }
-        }
-
-    }
-}

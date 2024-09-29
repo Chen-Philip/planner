@@ -14,6 +14,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -22,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -61,6 +63,8 @@ import com.example.planner.domain.viewmodel.CalendarViewModel
 import com.example.planner.domain.viewmodel.MainScreenViewModel
 import com.example.planner.screens.Screen
 import com.example.planner.ui.Dimen
+import com.example.planner.ui.Dimen.SMALL_PADDING
+import com.example.planner.ui.Dimen.TINY_PADDING
 import com.example.planner.ui.custom_widgets.TaskRow
 import com.example.planner.ui.custom_widgets.TitleRow
 import java.lang.Integer.min
@@ -189,25 +193,40 @@ private fun CalendarDay(
     onOpenDialogRequest: (Int) -> Unit,
 ) {
     calendarViewModel.getTasks(day)
-    Column (
-        modifier = modifier
-            .padding(1.dp)
-            .fillMaxHeight()
-            .border(width = 1.dp, color = Color.DarkGray, shape = RoundedCornerShape(8.dp))
-            .clickable { onOpenDialogRequest(day.dayOfMonth - 1) },
+    Box(modifier = modifier
+        .padding(1.dp)
+        .fillMaxHeight()
+        .border(width = 1.dp, color = Color.DarkGray, shape = RoundedCornerShape(8.dp))
+        .clickable { onOpenDialogRequest(day.dayOfMonth - 1) }
     ) {
-        Text(text = "${day.dayOfMonth}")
-        val tasks = calendarViewModel.tasks[day.dayOfMonth-1].value
-        if (tasks.isNullOrEmpty()) {
-            Text("No Tasks")
-        } else {
-            for (i in 0..< min(2, tasks.size)) {
-                Text(text = tasks[i].name.value, maxLines = 1, overflow = TextOverflow.Ellipsis, fontSize = 12.sp)
-            }
+        Column(
+            modifier = modifier
+                .padding(horizontal = TINY_PADDING, vertical = 4.dp)
+                .fillMaxSize(),
+        ) {
+            Text(text = "${day.dayOfMonth}")
+            val tasks = calendarViewModel.tasks[day.dayOfMonth - 1].value
+            if (tasks.isNullOrEmpty()) {
+                Text(text = "No Tasks", fontSize = 12.sp)
+            } else {
+                for (i in 0..<min(2, tasks.size)) {
+                    Text(
+                        modifier = Modifier.wrapContentHeight(),
+                        text = tasks[i].name.value,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        fontSize = 12.sp
+                    )
+                }
 
-            val tasksLeft = tasks.size - 2
-            if (tasksLeft > 0) {
-                Text(text = "$tasksLeft more...", fontSize = 12.sp)
+                val tasksLeft = tasks.size - 2
+                if (tasksLeft > 0) {
+                    Text(text = "$tasksLeft more...",
+                        fontSize = 12.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
         }
     }
@@ -235,7 +254,7 @@ private fun AgendaDialog(
                     .fillMaxWidth(),
                 shape = RoundedCornerShape(Dimen.DIALOG_CORNER),
             ) {
-                Column {
+                Column (horizontalAlignment = Alignment.CenterHorizontally){
                     if (tasks != null) {
                         LazyColumn(modifier = Modifier.fillMaxHeight(0.75f).fillMaxWidth()) {
                             itemsIndexed(tasks) { i, task ->

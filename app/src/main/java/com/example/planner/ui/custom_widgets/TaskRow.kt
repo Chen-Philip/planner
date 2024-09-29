@@ -81,9 +81,10 @@ private fun MainTaskRow(
 ) {
     Row (
         modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Row {
+        Row (verticalAlignment = Alignment.CenterVertically) {
             Checkbox(
                 checked = task.isDone.value,
                 onCheckedChange = {

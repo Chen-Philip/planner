@@ -1,17 +1,13 @@
 package com.example.planner.data.repository.user_repository
 
-import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+
 import com.example.planner.data.User
 import com.example.planner.data.data_model.FirebaseTask
 import com.example.planner.data.dataclass.Task
+import com.example.planner.data.transformFirebaseTasktoTask
+import com.example.planner.data.transformTasktoFirebaseTask
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
-import com.google.firebase.firestore.QuerySnapshot
-import com.google.firebase.firestore.toObject
-import kotlinx.coroutines.tasks.await
-import java.util.Date
 import javax.inject.Inject
 
 class UserRepositoryImpl @Inject constructor (
@@ -52,27 +48,5 @@ class UserRepositoryImpl @Inject constructor (
                 firestore.collection(User.userId).document(firebaseTask.id).set(firebaseTask)
             }
         }
-    }
-
-    private fun transformFirebaseTasktoTask(firebaseTask: FirebaseTask): Task {
-        return Task(
-            id = firebaseTask.id,
-            date = mutableStateOf( firebaseTask.date?.toLong().let { if (it == null) null else Date(it)}),
-            name = mutableStateOf(firebaseTask.name ?: ""),
-            priority = null,
-            isDone = mutableStateOf(firebaseTask.isDone ?: false),
-            pinToCalendar = mutableStateOf(firebaseTask.pinToCalendar)
-        )
-    }
-
-    private fun transformTasktoFirebaseTask(task: Task): FirebaseTask {
-        return FirebaseTask(
-            id = task.id,
-            date = task.date.value?.time?.toFloat(),
-            name =  task.name.value,
-            priority = null,
-            isDone = task.isDone.value,
-            pinToCalendar = task.pinToCalendar.value
-        )
     }
 }

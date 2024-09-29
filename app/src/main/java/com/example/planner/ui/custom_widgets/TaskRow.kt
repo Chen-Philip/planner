@@ -59,7 +59,7 @@ fun TaskRow(
     // Can use decorator or smth
     val showConfirmDialog = remember { mutableStateOf(false) }
     ConfirmDialog(showConfirmDialog, onDismissRequest = { showConfirmDialog.value = false }) {
-        it()
+        viewModel.deleteTask(task)
         showConfirmDialog.value = false
     }
 
@@ -165,7 +165,7 @@ private fun MainTaskRow(
 private fun ConfirmDialog(
     showConfirmDialog: MutableState<Boolean>,
     onDismissRequest: () -> Unit,
-    onConfirmationRequest: (() -> Unit) -> Unit,
+    onConfirmationRequest: () -> Unit,
 ) {
     if (showConfirmDialog.value) {
         Dialog(
@@ -196,11 +196,7 @@ private fun ConfirmDialog(
                             Text("Cancel")
                         }
                         TextButton(
-                            onClick = {
-                                onConfirmationRequest {
-
-                                }
-                            },
+                            onClick = onConfirmationRequest,
                             modifier = Modifier.padding(8.dp),
                         ) {
                             Text("Confirm")

@@ -31,7 +31,7 @@ import com.example.planner.domain.viewmodel.MainScreenViewModel
 import com.example.planner.screens.planner.AgendaScreen
 import com.example.planner.screens.planner.CalendarScreen
 import com.example.planner.screens.planner.ScheduleScreen
-import java.text.SimpleDateFormat
+import com.example.planner.ui.custom_widgets.TaskDialog
 import java.time.LocalDate
 import java.util.Calendar
 
@@ -61,11 +61,11 @@ fun MainScreen(
             NavigationGraph(navController = navController, mainScreenViewModel = mainScreenViewModel)
         }
         if (showAddTaskDialog.value) {
-            AddTaskDialog(
+            TaskDialog(
                 currentDate = localDateToMillis(mainScreenViewModel.date.value),
                 onDismissRequest = { showAddTaskDialog.value = false },
-                onConfirmationRequest = { name, startDate, endDate ->
-                    mainScreenViewModel.addTask(name, startDate, endDate)
+                onConfirmationRequest = { task ->
+                    mainScreenViewModel.addTask(task)
                     showAddTaskDialog.value = false
                 }
             )
@@ -138,7 +138,8 @@ private fun getCurrentRoute(navController: NavHostController): String? {
 
 @RequiresApi(Build.VERSION_CODES.O)
 private fun localDateToMillis(date: LocalDate): Long {
-    var tempCalendar = Calendar.getInstance()
-    tempCalendar.set(date.year, date.monthValue, date.dayOfMonth)
+    val tempCalendar = Calendar.getInstance()
+    // todo fix this: gives one month ahead for some reason
+    tempCalendar.set(date.year, date.monthValue - 1, date.dayOfMonth)
     return tempCalendar.timeInMillis
 }

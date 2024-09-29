@@ -23,13 +23,33 @@ class UserRepositoryImpl @Inject constructor (
         }
     }
 
+    override fun deleteTask(task: Task) {
+        val firebaseTask = transformTasktoFirebaseTask(task)
+        if (firebaseTask.id == "") {
+            val temp = firestore.collection(User.userId).document()
+            firebaseTask.id = temp.id
 
-    override fun setTasks(tasks: List<FirebaseTask>) {
+        }
+        firestore.collection(User.userId).document(firebaseTask.id).delete()
+    }
+
+    override fun updateTask(task: Task) {
+        val firebaseTask = transformTasktoFirebaseTask(task)
+        if (firebaseTask.id == "") {
+            val temp = firestore.collection(User.userId).document()
+            firebaseTask.id = temp.id
+
+        }
+        firestore.collection(User.userId).document(firebaseTask.id).set(firebaseTask)
+    }
+
+    override fun setTasks(tasks: List<Task>) {
         tasks.forEach {
-            if (it.id == "") {
+            val firebaseTask = transformTasktoFirebaseTask(it)
+            if (firebaseTask.id == "") {
                 val temp = firestore.collection(User.userId).document()
-                it.id = temp.id
-                firestore.collection(User.userId).document(it.id!!).set(it)
+                firebaseTask.id = temp.id
+                firestore.collection(User.userId).document(firebaseTask.id).set(firebaseTask)
             }
         }
     }
@@ -40,7 +60,19 @@ class UserRepositoryImpl @Inject constructor (
             date = mutableStateOf( firebaseTask.date?.toLong().let { if (it == null) null else Date(it)}),
             name = mutableStateOf(firebaseTask.name ?: ""),
             priority = null,
-            isDone = mutableStateOf(firebaseTask.isDone ?: false)
+            isDone = mutableStateOf(firebaseTask.isDone ?: false),
+            pinToCalendar = mutableStateOf(firebaseTask.pinToCalendar)
+        )
+    }
+
+    private fun transformTasktoFirebaseTask(task: Task): FirebaseTask {
+        return FirebaseTask(
+            id = task.id,
+            date = task.date.value?.time?.toFloat(),
+            name =  task.name.value,
+            priority = null,
+            isDone = task.isDone.value,
+            pinToCalendar = task.pinToCalendar.value
         )
     }
 }

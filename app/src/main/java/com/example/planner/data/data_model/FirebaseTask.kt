@@ -11,4 +11,5 @@ data class FirebaseTask (
     var dueDate: Float? = null,
     var startTime: FieldValue? = null,
     var endTime: FieldValue? = null,
+    var pinToCalendar: Boolean = false,
 )

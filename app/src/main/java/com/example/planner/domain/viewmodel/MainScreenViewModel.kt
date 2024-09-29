@@ -2,19 +2,13 @@ package com.example.planner.domain.viewmodel
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.planner.data.data_model.FirebaseTask
 import com.example.planner.data.dataclass.Task
 import com.example.planner.data.repository.user_repository.UserRepository
-import com.google.firebase.firestore.FieldValue
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.text.SimpleDateFormat
 import java.time.LocalDate
-import java.util.Calendar
-import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -27,15 +21,7 @@ class MainScreenViewModel @Inject constructor(
     )
 
 
-    fun addTask(name: String, startDate: Long?, endDate: Long?) {
-        val task = FirebaseTask(
-            id = "",
-            name = name,
-            date = startDate?.toFloat() ?: System.currentTimeMillis().toFloat(),
-            dueDate = endDate?.toFloat(),
-            startTime = null,
-            endTime = null,
-        )
+    fun addTask(task: Task) {
         userRepository.setTasks(listOf(task))
     }
 

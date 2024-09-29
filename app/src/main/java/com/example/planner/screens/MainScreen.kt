@@ -31,6 +31,7 @@ import com.example.planner.domain.viewmodel.MainScreenViewModel
 import com.example.planner.screens.planner.AgendaScreen
 import com.example.planner.screens.planner.CalendarScreen
 import com.example.planner.screens.planner.ScheduleScreen
+import com.example.planner.ui.custom_widgets.TaskDialog
 import java.time.LocalDate
 import java.util.Calendar
 
@@ -60,7 +61,7 @@ fun MainScreen(
             NavigationGraph(navController = navController, mainScreenViewModel = mainScreenViewModel)
         }
         if (showAddTaskDialog.value) {
-            AddTaskDialog(
+            TaskDialog(
                 currentDate = localDateToMillis(mainScreenViewModel.date.value),
                 onDismissRequest = { showAddTaskDialog.value = false },
                 onConfirmationRequest = { task ->

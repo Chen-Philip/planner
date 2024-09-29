@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.planner.data.data_model.FirebaseTask
+import com.example.planner.data.dataclass.Task
 import com.example.planner.data.repository.user_repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.LocalDate
@@ -20,7 +21,7 @@ class MainScreenViewModel @Inject constructor(
     )
 
 
-    fun addTask(task: FirebaseTask) {
+    fun addTask(task: Task) {
         userRepository.setTasks(listOf(task))
     }
 

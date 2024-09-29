@@ -63,6 +63,22 @@ fun TaskRow(
         showConfirmDialog.value = false
     }
 
+    MainTaskRow(
+        viewModel = viewModel,
+        task = task
+    ) {
+        showConfirmDialog.value = true
+    }
+
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+private fun MainTaskRow(
+    viewModel: BaseViewModel,
+    task: Task,
+    openDialog: () -> Unit
+) {
     Row (
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
@@ -78,6 +94,7 @@ fun TaskRow(
                 text = task.name.value
             )
         }
+
         Row (
             horizontalArrangement = Arrangement.Absolute.Right
         ){
@@ -98,16 +115,26 @@ fun TaskRow(
                 exit = slideOutHorizontally() + shrinkHorizontally() + fadeOut()
             ) {
                 Row {
+                    val showEditDialog = remember { mutableStateOf(false) }
+                    if (showEditDialog.value) {
+                        TaskDialog(
+                            task = task,
+                            currentDate = task.date.value?.time!!,
+                            onDismissRequest = { showEditDialog.value = false },
+                            onConfirmationRequest = { firebaseTask ->
+                                viewModel.updateTask(firebaseTask)
+                                showEditDialog.value = false
+
+                            }
+                        )
+                    }
                     IconButton(
-                        onClick = { /* TODO */ }
+                        onClick = { showEditDialog.value = true }
                     ) {
                         Icon(Icons.Filled.Edit, "More")
                     }
                     IconButton(
-                        onClick = {
-                            showConfirmDialog.value = true
-//                            viewModel.deleteTask(task)
-                        }
+                        onClick = openDialog
                     ) {
                         Icon(Icons.Filled.Delete, "More")
                     }
@@ -166,7 +193,7 @@ private fun ConfirmDialog(
                             onClick = { onDismissRequest() },
                             modifier = Modifier.padding(8.dp),
                         ) {
-                            Text("Dismiss")
+                            Text("Cancel")
                         }
                         TextButton(
                             onClick = {

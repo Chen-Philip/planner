@@ -16,6 +16,10 @@ abstract class BaseViewModel: ViewModel() {
 
     abstract fun getTasks(date: LocalDate)
 
+    fun updateTask(task: Task) {
+        userRepository.updateTask(task)
+    }
+
     fun deleteTask(task: Task) {
         userRepository.deleteTask(task)
     }

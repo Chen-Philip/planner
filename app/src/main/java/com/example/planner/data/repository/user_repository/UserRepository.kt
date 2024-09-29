@@ -16,6 +16,6 @@ interface UserRepository {
 
     fun updateTask(task: Task)
 
-    fun setTasks(tasks: List<FirebaseTask>)
+    fun setTasks(tasks: List<Task>)
 }
 

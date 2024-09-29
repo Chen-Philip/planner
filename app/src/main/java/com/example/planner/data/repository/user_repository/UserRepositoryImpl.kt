@@ -43,12 +43,13 @@ class UserRepositoryImpl @Inject constructor (
         firestore.collection(User.userId).document(firebaseTask.id).set(firebaseTask)
     }
 
-    override fun setTasks(tasks: List<FirebaseTask>) {
+    override fun setTasks(tasks: List<Task>) {
         tasks.forEach {
-            if (it.id == "") {
+            val firebaseTask = transformTasktoFirebaseTask(it)
+            if (firebaseTask.id == "") {
                 val temp = firestore.collection(User.userId).document()
-                it.id = temp.id
-                firestore.collection(User.userId).document(it.id).set(it)
+                firebaseTask.id = temp.id
+                firestore.collection(User.userId).document(firebaseTask.id).set(firebaseTask)
             }
         }
     }

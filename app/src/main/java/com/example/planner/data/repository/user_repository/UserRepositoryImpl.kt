@@ -1,17 +1,13 @@
 package com.example.planner.data.repository.user_repository
 
-import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+
 import com.example.planner.data.User
 import com.example.planner.data.data_model.FirebaseTask
 import com.example.planner.data.dataclass.Task
+import com.example.planner.data.transformFirebaseTasktoTask
+import com.example.planner.data.transformTasktoFirebaseTask
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
-import com.google.firebase.firestore.QuerySnapshot
-import com.google.firebase.firestore.toObject
-import kotlinx.coroutines.tasks.await
-import java.util.Date
 import javax.inject.Inject
 
 class UserRepositoryImpl @Inject constructor (
@@ -23,24 +19,34 @@ class UserRepositoryImpl @Inject constructor (
         }
     }
 
+    override fun deleteTask(task: Task) {
+        val firebaseTask = transformTasktoFirebaseTask(task)
+        if (firebaseTask.id == "") {
+            val temp = firestore.collection(User.userId).document()
+            firebaseTask.id = temp.id
 
-    override fun setTasks(tasks: List<FirebaseTask>) {
-        tasks.forEach {
-            if (it.id == "") {
-                val temp = firestore.collection(User.userId).document()
-                it.id = temp.id
-                firestore.collection(User.userId).document(it.id!!).set(it)
-            }
         }
+        firestore.collection(User.userId).document(firebaseTask.id).delete()
     }
 
-    private fun transformFirebaseTasktoTask(firebaseTask: FirebaseTask): Task {
-        return Task(
-            id = firebaseTask.id,
-            date = mutableStateOf( firebaseTask.date?.toLong().let { if (it == null) null else Date(it)}),
-            name = mutableStateOf(firebaseTask.name ?: ""),
-            priority = null,
-            isDone = mutableStateOf(firebaseTask.isDone ?: false)
-        )
+    override fun updateTask(task: Task) {
+        val firebaseTask = transformTasktoFirebaseTask(task)
+        if (firebaseTask.id == "") {
+            val temp = firestore.collection(User.userId).document()
+            firebaseTask.id = temp.id
+
+        }
+        firestore.collection(User.userId).document(firebaseTask.id).set(firebaseTask)
+    }
+
+    override fun setTasks(tasks: List<Task>) {
+        tasks.forEach {
+            val firebaseTask = transformTasktoFirebaseTask(it)
+            if (firebaseTask.id == "") {
+                val temp = firestore.collection(User.userId).document()
+                firebaseTask.id = temp.id
+                firestore.collection(User.userId).document(firebaseTask.id).set(firebaseTask)
+            }
+        }
     }
 }

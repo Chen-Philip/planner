@@ -21,9 +21,7 @@ import javax.inject.Inject
 @SuppressLint("SimpleDateFormat")
 @RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel
-class CalendarViewModel @Inject constructor(
-    private val userRepository: UserRepository
-) : ViewModel() {
+class CalendarViewModel @Inject constructor() : BaseViewModel() {
     lateinit var tasks: List<MutableState<List<Task>?>>
 
     fun initTasks(numDays: Int) {
@@ -34,7 +32,7 @@ class CalendarViewModel @Inject constructor(
         }
     }
 
-    fun getTasks(date: LocalDate) {
+    override fun getTasks(date: LocalDate) {
         val dateFormat: DateFormat = SimpleDateFormat.getDateInstance()
         val dateTimeFormat = DateTimeFormatter.ofPattern("MMM d, yyyy")
         viewModelScope.launch {
@@ -43,7 +41,9 @@ class CalendarViewModel @Inject constructor(
                 if (value != null) {
                     for (task in value) {
                         if (task.date.value != null && dateTimeFormat.format(date).equals(dateFormat.format(task.date.value!!))) {
-                            temp.add(task)
+                            if (task.pinToCalendar.value) {
+                                temp.add(task)
+                            }
                         }
                     }
                 }

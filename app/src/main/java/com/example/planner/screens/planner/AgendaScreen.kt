@@ -21,6 +21,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.planner.data.dataclass.Task
 import com.example.planner.domain.viewmodel.AgendaViewModel
 import com.example.planner.domain.viewmodel.MainScreenViewModel
 import com.example.planner.ui.Dimen.MEDIUM_PADDING
@@ -34,22 +36,27 @@ import com.example.planner.ui.custom_widgets.TitleRow
 @Composable
 fun AgendaScreen(
     agendaViewModel: AgendaViewModel  = hiltViewModel(),
-    mainScreenViewModel: MainScreenViewModel,
 ) {
-    agendaViewModel.getTasks(mainScreenViewModel.date.value)
+    val tasks by agendaViewModel.tasks.collectAsStateWithLifecycle()
+    val date by agendaViewModel.date.collectAsStateWithLifecycle()
+
     Column (
         modifier = Modifier.padding(MEDIUM_PADDING),
         horizontalAlignment = Alignment.CenterHorizontally
     ){
         val currentScreen = agendaViewModel.currentScreen.observeAsState()
         TitleRow(
-            dateText = agendaViewModel.dateTimeFormat.format(mainScreenViewModel.date.value),
-            onPrevClick = { mainScreenViewModel.getPrevDate() },
-            onNextClick = { mainScreenViewModel.getNextDate() },
+            dateText = agendaViewModel.dateTimeFormat.format(date),
+            onPrevClick = { agendaViewModel.getPrevDate() },
+            onNextClick = { agendaViewModel.getNextDate() },
         )
         if (currentScreen.value == AgendaViewModel.ScreenType.TODO) {
             TaskColumn(
-                agendaViewModel
+                tasks,
+                agendaViewModel::deleteTask,
+                agendaViewModel::checkTask,
+                agendaViewModel::updateTask,
+                agendaViewModel::pinToCalendar,
             )
         } else {
             NotesScreen()
@@ -67,17 +74,27 @@ fun AgendaScreen(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun TaskColumn(
-    agendaViewModel: AgendaViewModel,
+    tasks: List<Task>,
+    onDeleteTask: (task: Task) -> Unit,
+    onCheckTask: (task: Task, isChecked: Boolean) -> Unit,
+    onUpdateTask: (task: Task) -> Unit,
+    onPinToCalendar: (task: Task) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    if (agendaViewModel.tasks.value != null) {
+    if (tasks.isNotEmpty()) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(0.9f)
         ) {
-            itemsIndexed(agendaViewModel.tasks.value!!) { i, task ->
-                TaskRow(agendaViewModel, task)
+            itemsIndexed(tasks) { i, task ->
+                TaskRow(
+                    onDeleteTask,
+                    onCheckTask,
+                    onUpdateTask,
+                    onPinToCalendar,
+                    task
+                )
             }
         }
     } else {

@@ -20,20 +20,14 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DateRangePicker
-import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,31 +37,33 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.example.planner.data.data_model.FirebaseTask
 import com.example.planner.data.dataclass.Task
-import com.example.planner.domain.viewmodel.BaseViewModel
-import com.example.planner.domain.viewmodel.CalendarViewModel
 import com.example.planner.ui.Dimen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TaskRow(
-    viewModel: BaseViewModel,
+    onDeleteTask: (task: Task) -> Unit,
+    onCheckTask: (task: Task, isChecked: Boolean) -> Unit,
+    onUpdateTask: (task: Task) -> Unit,
+    onPinToCalendar: (task: Task) -> Unit,
     task: Task,
 ) {
 
     // Can use decorator or smth
-    val showConfirmDialog = remember { mutableStateOf(false) }
-    ConfirmDialog(showConfirmDialog, onDismissRequest = { showConfirmDialog.value = false }) {
-        viewModel.deleteTask(task)
-        showConfirmDialog.value = false
+    var showConfirmDialog by remember { mutableStateOf(false) }
+    ConfirmDialog(showConfirmDialog, onDismissRequest = { showConfirmDialog = false }) {
+        onDeleteTask(task)
+        showConfirmDialog = false
     }
 
     MainTaskRow(
-        viewModel = viewModel,
+        onCheckTask,
+        onUpdateTask,
+        onPinToCalendar,
         task = task
     ) {
-        showConfirmDialog.value = true
+        showConfirmDialog = true
     }
 
 }
@@ -75,7 +71,9 @@ fun TaskRow(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun MainTaskRow(
-    viewModel: BaseViewModel,
+    onCheckTask: (task: Task, isChecked: Boolean) -> Unit,
+    onUpdateTask: (task: Task) -> Unit,
+    onPinToCalendar: (task: Task) -> Unit,
     task: Task,
     openDialog: () -> Unit
 ) {
@@ -86,13 +84,13 @@ private fun MainTaskRow(
     ) {
         Row (verticalAlignment = Alignment.CenterVertically) {
             Checkbox(
-                checked = task.isDone.value,
+                checked = task.isDone,
                 onCheckedChange = {
-                    viewModel.checkTask(task, it)
+                    onCheckTask(task, it)
                 }
             )
             Text(
-                text = task.name.value
+                text = task.name
             )
         }
 
@@ -120,10 +118,10 @@ private fun MainTaskRow(
                     if (showEditDialog.value) {
                         TaskDialog(
                             task = task,
-                            currentDate = task.date.value?.time!!,
+                            currentDate = task.date?.time!!,
                             onDismissRequest = { showEditDialog.value = false },
                             onConfirmationRequest = { firebaseTask ->
-                                viewModel.updateTask(firebaseTask)
+                                onUpdateTask(firebaseTask)
                                 showEditDialog.value = false
 
                             }
@@ -140,11 +138,9 @@ private fun MainTaskRow(
                         Icon(Icons.Filled.Delete, "More")
                     }
                     IconButton(
-                        onClick = {
-                            viewModel.pinToCalendar(task)
-                        }
+                        onClick = { onPinToCalendar(task) }
                     ) {
-                        if (task.pinToCalendar.value) {
+                        if (task.pinToCalendar) {
                             Icon(Icons.Filled.Favorite, "More")
                         } else {
                             Icon(Icons.Outlined.FavoriteBorder, "More")
@@ -164,11 +160,11 @@ private fun MainTaskRow(
 
 @Composable
 private fun ConfirmDialog(
-    showConfirmDialog: MutableState<Boolean>,
+    showConfirmDialog: Boolean,
     onDismissRequest: () -> Unit,
     onConfirmationRequest: () -> Unit,
 ) {
-    if (showConfirmDialog.value) {
+    if (showConfirmDialog) {
         Dialog(
             onDismissRequest = { onDismissRequest() }
         ) {

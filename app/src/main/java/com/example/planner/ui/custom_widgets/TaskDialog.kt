@@ -46,16 +46,16 @@ fun TaskDialog(
                 .padding(Dimen.MEDIUM_PADDING),
             shape = RoundedCornerShape(Dimen.DIALOG_CORNER),
         ) {
-            var taskName by remember { task?.name ?: mutableStateOf( "") }
+            var taskName by remember { mutableStateOf(task?.name ?: "") }
             val datePickerState = rememberDateRangePickerState(
                 initialDisplayMode = DisplayMode.Input,
-                initialSelectedStartDateMillis = task?.date?.value?.time ?: currentDate // todo fix UTC to current timezone conversion
+                initialSelectedStartDateMillis = task?.date?.time ?: currentDate // todo fix UTC to current timezone conversion
             )
             Column(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                val pinToCalendar = remember { task?.pinToCalendar ?: mutableStateOf(false) }
+                var pinToCalendar by remember {  mutableStateOf(task?.pinToCalendar ?: false) }
                 OutlinedTextField(
                     value = taskName,
                     onValueChange = { taskName = it },
@@ -75,9 +75,9 @@ fun TaskDialog(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Checkbox(
-                        checked = pinToCalendar.value,
+                        checked = pinToCalendar,
                         onCheckedChange = {
-                            pinToCalendar.value = !pinToCalendar.value
+                            pinToCalendar = !pinToCalendar
                         }
                     )
                     Text(
@@ -100,8 +100,8 @@ fun TaskDialog(
                         onClick = {
                             val newTask = Task(
                                 id = task?.id ?: "",
-                                name = mutableStateOf(taskName),
-                                date = mutableStateOf(Date(datePickerState.selectedStartDateMillis ?: currentDate)),
+                                name = taskName,
+                                date = Date(datePickerState.selectedStartDateMillis ?: currentDate),
                                 pinToCalendar = pinToCalendar,
                             )
                             onConfirmationRequest(newTask)

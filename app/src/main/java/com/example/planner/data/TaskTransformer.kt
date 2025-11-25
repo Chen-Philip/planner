@@ -8,21 +8,21 @@ import java.util.Date
 fun transformFirebaseTasktoTask(firebaseTask: FirebaseTask): Task {
     return Task(
         id = firebaseTask.id,
-        date = mutableStateOf( firebaseTask.date?.toLong().let { if (it == null) null else Date(it) }),
-        name = mutableStateOf(firebaseTask.name ?: ""),
+        date = firebaseTask.date?.toLong().let { if (it == null) null else Date(it) },
+        name = firebaseTask.name ?: "",
         priority = null,
-        isDone = mutableStateOf(firebaseTask.isDone ?: false),
-        pinToCalendar = mutableStateOf(firebaseTask.pinToCalendar)
+        isDone = firebaseTask.isDone ?: false,
+        pinToCalendar = firebaseTask.pinToCalendar
     )
 }
 
 fun transformTasktoFirebaseTask(task: Task): FirebaseTask {
     return FirebaseTask(
         id = task.id,
-        date = task.date.value?.time?.toFloat(),
-        name =  task.name.value,
+        date = task.date?.time?.toFloat(),
+        name =  task.name,
         priority = null,
-        isDone = task.isDone.value,
-        pinToCalendar = task.pinToCalendar.value
+        isDone = task.isDone,
+        pinToCalendar = task.pinToCalendar
     )
 }

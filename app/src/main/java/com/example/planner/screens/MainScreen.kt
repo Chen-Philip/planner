@@ -19,6 +19,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -51,22 +52,27 @@ fun MainScreen(
     mainScreenViewModel: MainScreenViewModel = hiltViewModel()
 ) {
     val navController = rememberNavController()
-    val showAddTaskDialog = remember { mutableStateOf(false) }
+    var showAddTaskDialog by remember { mutableStateOf(false) }
+    var dialogDate by remember { mutableStateOf<LocalDate?>(null) }
 
     Scaffold(
         bottomBar = { BottomNavBar(navController = navController) },
-        floatingActionButton = { AddTaskFloatingActionButton(mainScreenViewModel, showAddTaskDialog) }
+        floatingActionButton = {
+            AddTaskFloatingActionButton {
+                dialogDate = mainScreenViewModel.date.value
+            }
+        }
     ) {
         Box(modifier = Modifier.padding(it)) {
             NavigationGraph(navController = navController, mainScreenViewModel = mainScreenViewModel)
         }
-        if (showAddTaskDialog.value) {
+        if (dialogDate != null) {
             TaskDialog(
-                currentDate = localDateToMillis(mainScreenViewModel.date.value),
-                onDismissRequest = { showAddTaskDialog.value = false },
+                currentDate = localDateToMillis(dialogDate!!),
+                onDismissRequest = { dialogDate = null },
                 onConfirmationRequest = { task ->
                     mainScreenViewModel.addTask(task)
-                    showAddTaskDialog.value = false
+                    dialogDate = null
                 }
             )
         }
@@ -83,10 +89,9 @@ private fun NavigationGraph(
         navController = navController,
         startDestination = Screen.Agenda.route
     ) {
-        composable(Screen.Agenda.route) { AgendaScreen(mainScreenViewModel =  mainScreenViewModel) }
+        composable(Screen.Agenda.route) { AgendaScreen() }
         composable(Screen.Calendar.route) {
             CalendarScreen(
-                mainScreenViewModel =  mainScreenViewModel,
                 navController = navController
             )
         }
@@ -117,13 +122,10 @@ private fun BottomNavBar(navController: NavHostController) {
 
 @Composable
 private fun AddTaskFloatingActionButton(
-    mainScreenViewModel: MainScreenViewModel,
-    showAddTaskDialog: MutableState<Boolean>
+    onAddTaskClick: () -> Unit,
 ) {
     FloatingActionButton(
-        onClick = {
-            showAddTaskDialog.value = true
-        },
+        onClick = onAddTaskClick,
     ) {
         Icon(Icons.Filled.Add, "Add task")
     }
